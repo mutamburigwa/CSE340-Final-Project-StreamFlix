@@ -6,7 +6,6 @@ require('dotenv').config();
 
 const app = express(); // Initialize Express app
 const port = process.env.PORT || 3000; // Use environment PORT or default to 3000
-const SALT_ROUNDS = process.env.SALT_ROUNDS || 10; // Default to 10 if not defined
 
 // Middleware for JSON parsing
 app.use(bodyParser.json());
@@ -27,6 +26,10 @@ app.use((req, res, next) => {
 
 // Route handling
 app.use('/', routes);
+
+// Import and use movies routes
+const moviesRoutes = require("./routes/movies");
+app.use("/movies", moviesRoutes);
 
 // Start server after DB initialization
 mongodb.initDb((err) => {

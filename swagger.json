@@ -168,6 +168,161 @@
           }
         }
       }
+    },
+    "/movies": {
+      "get": {
+        "tags": ["Movies"],
+        "summary": "Get all movies",
+        "description": "Retrieves a list of all movies in the database.",
+        "responses": {
+          "200": {
+            "description": "A list of movies",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_id": { "type": "string" },
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "url": { "type": "string" },
+                  "thumbnail": { "type": "string" },
+                  "createdAt": { "type": "string", "format": "date-time" }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Movies"],
+        "summary": "Create a new movie",
+        "description": "Creates a new movie with the provided details.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "url": { "type": "string" },
+                "thumbnail": { "type": "string", "format": "binary" }
+              },
+              "required": ["title", "description", "url", "thumbnail"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Movie created successfully"
+          },
+          "400": {
+            "description": "Bad Request - Missing or invalid fields"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/movies/{id}": {
+      "get": {
+        "tags": ["Movies"],
+        "summary": "Get a single movie",
+        "description": "Retrieve a movie by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Movie found",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "_id": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "url": { "type": "string" },
+                "thumbnail": { "type": "string" },
+                "createdAt": { "type": "string", "format": "date-time" }
+              }
+            }
+          },
+          "404": {
+            "description": "Movie not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Movies"],
+        "summary": "Update a movie",
+        "description": "Updates a movie's details.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "url": { "type": "string" }
+              },
+              "required": ["title", "description", "url"]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Movie updated successfully"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Movies"],
+        "summary": "Delete a movie",
+        "description": "Deletes a movie by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Movie deleted successfully"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   }
 }

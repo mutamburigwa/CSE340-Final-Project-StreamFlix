@@ -1,86 +1,73 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const express = require("express");
+const multer = require("multer");
 const mongodb = require("../data/database");
-const ObjectId = require("mongodb").ObjectId;
+const path = require("path");
 
-require("dotenv").config();
+const router = express.Router();
 
-// Middleware to verify JWT
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-  
-    if (!token) {
-      return res.status(401).json({ message: "Access token required" });
-    }
-  
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        return res.status(403).json({ message: "Invalid or expired token" });
-      }
-  
-      req.user = user;
-      next();
-    });
-  };
-  
-  const authorizeRole = (requiredRole) => {
-    return (req, res, next) => {
-      const { role } = req.user; // Assumes req.user is populated by authenticateToken middleware
-  
-      if (!role || role !== requiredRole) {
-        return res
-          .status(403)
-          .json({ message: "Access denied. Insufficient permissions." });
-      }
-  
-      next();
-    };
-  };
-  
+// Set up Multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../movies")); // Save files in the 'movies' folder
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName); // Generate unique filenames
+  },
+});
 
+const upload = multer({ storage });
 
-
+// Get all movies
 const getAllMovies = async (req, res) => {
+  try {
+    const db = mongodb.getDatabase().db();
+    const movies = await db.collection("movies").find().toArray();
 
+    res.status(200).json(movies);
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving movies", error: error.message });
+  }
+};
 
-    try {
-      const db = mongodb.getDatabase().db();
-      const movies = await db.collection("movies").find().toArray();
-  
-      res.status(200).json(movies);
-    } catch (error) {
-      res.status(500).json({ message: "Error retrieving movies", error: error.message });
-    }
-  };
-  
-  const createMovie = async (req, res) => {
-    try {
-      const { title, description, url } = req.body;
-  
-      if (!title || !description || !url) {
-        return res.status(400).json({ message: "All fields are required" });
+// Create a new movie
+const createMovie = async (req, res) => {
+  try {
+    upload.single("thumbnail")(req, res, async (err) => {
+      if (err) {
+        return res.status(500).json({ message: "File upload error", error: err.message });
       }
-  
+
+      const { title, description, url } = req.body;
+
+      if (!title || !description || !url || !req.file) {
+        return res.status(400).json({ message: "All fields (title, description, URL, and thumbnail) are required" });
+      }
+
       const db = mongodb.getDatabase().db();
-      const newMovie = { title, description, url, createdAt: new Date() };
-  
+      const newMovie = {
+        title,
+        description,
+        url,
+        thumbnail: req.file.filename, // Store the filename of the uploaded thumbnail
+        createdAt: new Date(),
+      };
+
       const response = await db.collection("movies").insertOne(newMovie);
-  
+
       if (response.acknowledged) {
-        res.status(201).json({ message: "Movie created successfully" });
+        res.status(201).json({ message: "Movie created successfully", movie: newMovie });
       } else {
         res.status(500).json({ message: "Error adding movie" });
       }
-    } catch (error) {
-      res.status(500).json({ message: "Error adding movie", error: error.message });
-    }
-  };
-  
-  module.exports = {
-    authenticateToken,
-    authorizeRole,
-    getAllMovies,
-    createMovie,
-  };
-  
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding movie", error: error.message });
+  }
+};
+
+// Define routes
+router.get("/", getAllMovies);
+router.post("/", upload.single("thumbnail"), createMovie);
+
+module.exports = router;
