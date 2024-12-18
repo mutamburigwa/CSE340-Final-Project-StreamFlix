@@ -2,45 +2,55 @@
   "swagger": "2.0",
   "info": {
     "title": "StreamFlix API",
-    "description": "API for a movie web app",
-    "version": "1.0.0"
+    "description": "API for a movie web app with role-based access control.",
+    "version": "1.3.0"
   },
   "host": "localhost:3000",
   "basePath": "/",
   "schemes": ["http", "https"],
   "paths": {
-    "/users": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Get all users",
-        "description": "Retrieves a list of all users in the database.",
+    "/users/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login a user or admin",
+        "description": "Authenticates a user or admin and returns a JWT token.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": { "type": "string" },
+                "password": { "type": "string" }
+              },
+              "required": ["username", "password"]
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "A list of users",
+            "description": "Login successful. Returns a JWT token.",
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "_id": { "type": "string" },
-                  "firstName": { "type": "string" },
-                  "lastName": { "type": "string" },
-                  "email": { "type": "string" },
-                  "username": { "type": "string" },
-                  "role": { "type": "string" }
-                }
+              "type": "object",
+              "properties": {
+                "accessToken": { "type": "string" },
+                "expiresIn": { "type": "integer" }
               }
             }
           },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "400": { "description": "Bad Request - Invalid input." },
+          "401": { "description": "Unauthorized - Invalid credentials." },
+          "500": { "description": "Internal Server Error." }
         }
-      },
+      }
+    },
+    "/users": {
       "post": {
         "tags": ["Users"],
         "summary": "Create a new user",
-        "description": "Creates a new user with the provided details.",
+        "description": "Allows anyone to create a new user with the provided details.",
         "parameters": [
           {
             "name": "body",
@@ -60,67 +70,67 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "User created successfully"
-          },
-          "400": {
-            "description": "Bad Request - Missing or invalid fields"
-          },
-          "409": {
-            "description": "Conflict - Username already exists"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "201": { "description": "User created successfully" },
+          "400": { "description": "Bad Request - Missing or invalid fields" },
+          "409": { "description": "Conflict - Username already exists" },
+          "500": { "description": "Internal Server Error" }
         }
-      }
-    },
-    "/users/{id}": {
+      },
       "get": {
         "tags": ["Users"],
-        "summary": "Get a single user",
-        "description": "Retrieve a user by their ID.",
+        "summary": "Get all users",
+        "description": "Allows admins to retrieve a list of all users.",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
+            "name": "Authorization",
+            "in": "header",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>' with admin role."
           }
         ],
         "responses": {
           "200": {
-            "description": "User found",
+            "description": "A list of users.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "_id": { "type": "string" },
-                "firstName": { "type": "string" },
-                "lastName": { "type": "string" },
-                "email": { "type": "string" },
-                "username": { "type": "string" },
-                "role": { "type": "string" }
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_id": { "type": "string" },
+                  "firstName": { "type": "string" },
+                  "lastName": { "type": "string" },
+                  "email": { "type": "string" },
+                  "username": { "type": "string" },
+                  "role": { "type": "string" }
+                }
               }
             }
           },
-          "404": {
-            "description": "User not found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "401": { "description": "Unauthorized - Admin privileges required." },
+          "500": { "description": "Internal Server Error" }
         }
-      },
+      }
+    },
+    "/users/{id}": {
       "put": {
         "tags": ["Users"],
-        "summary": "Update a user",
-        "description": "Updates a user's details.",
+        "summary": "Update user information",
+        "description": "Allows admins to update user details.",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>' with admin role."
+          },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the user to update."
           },
           {
             "name": "body",
@@ -139,44 +149,106 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "User updated successfully"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "204": { "description": "User updated successfully." },
+          "401": { "description": "Unauthorized - Admin privileges required." },
+          "404": { "description": "User not found." }
         }
       },
       "delete": {
         "tags": ["Users"],
         "summary": "Delete a user",
-        "description": "Deletes a user by their ID.",
+        "description": "Allows admins to delete a user by ID.",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>' with admin role."
+          },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the user to delete."
           }
         ],
         "responses": {
-          "204": {
-            "description": "User deleted successfully"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "204": { "description": "User deleted successfully." },
+          "401": { "description": "Unauthorized - Admin privileges required." },
+          "404": { "description": "User not found." }
         }
       }
     },
     "/movies": {
+      "post": {
+        "tags": ["Movies"],
+        "summary": "Create a new movie",
+        "description": "Allows admins to create a new movie.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>' with admin role."
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "url": { "type": "string" },
+                "releaseDate": { "type": "string", "format": "date" },
+                "genre": { "type": "array", "items": { "type": "string" } },
+                "director": { "type": "string" },
+                "cast": { "type": "array", "items": { "type": "string" } },
+                "language": { "type": "string" },
+                "runtime": { "type": "integer", "description": "Runtime in minutes" },
+                "thumbnail": { "type": "string" }
+              },
+              "required": [
+                "title",
+                "description",
+                "url",
+                "releaseDate",
+                "genre",
+                "director",
+                "cast",
+                "language",
+                "runtime",
+                "thumbnail"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Movie created successfully." },
+          "401": { "description": "Unauthorized - Admin privileges required." },
+          "500": { "description": "Internal Server Error." }
+        }
+      },
       "get": {
         "tags": ["Movies"],
         "summary": "Get all movies",
-        "description": "Retrieves a list of all movies in the database.",
+        "description": "Accessible to all authenticated users.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>'."
+          }
+        ],
         "responses": {
           "200": {
-            "description": "A list of movies",
+            "description": "A list of movies.",
             "schema": {
               "type": "array",
               "items": {
@@ -192,16 +264,30 @@
               }
             }
           },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "401": { "description": "Unauthorized - Token missing or invalid." }
         }
-      },
-      "post": {
+      }
+    },
+    "/movies/{id}": {
+      "put": {
         "tags": ["Movies"],
-        "summary": "Create a new movie",
-        "description": "Creates a new movie with the provided details.",
+        "summary": "Update a movie",
+        "description": "Allows admins to update a movie's details.",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>' with admin role."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the movie to update."
+          },
           {
             "name": "body",
             "in": "body",
@@ -212,71 +298,89 @@
                 "title": { "type": "string" },
                 "description": { "type": "string" },
                 "url": { "type": "string" },
-                "thumbnail": { "type": "string", "format": "binary" }
+                "thumbnail": { "type": "string" }
               },
               "required": ["title", "description", "url", "thumbnail"]
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "Movie created successfully"
-          },
-          "400": {
-            "description": "Bad Request - Missing or invalid fields"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "204": { "description": "Movie updated successfully." },
+          "401": { "description": "Unauthorized - Admin privileges required." },
+          "404": { "description": "Movie not found." }
         }
-      }
-    },
-    "/movies/{id}": {
-      "get": {
+      },
+      "delete": {
         "tags": ["Movies"],
-        "summary": "Get a single movie",
-        "description": "Retrieve a movie by its ID.",
+        "summary": "Delete a movie",
+        "description": "Allows admins to delete a movie by ID.",
         "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>' with admin role."
+          },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the movie to delete."
+          }
+        ],
+        "responses": {
+          "204": { "description": "Movie deleted successfully." },
+          "401": { "description": "Unauthorized - Admin privileges required." },
+          "404": { "description": "Movie not found." }
+        }
+      }
+    },
+    "/movies/recommendations": {
+      "get": {
+        "tags": ["Movies"],
+        "summary": "Get recommended movies",
+        "description": "Provides movie recommendations for the user based on their watch history.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>'."
           }
         ],
         "responses": {
           "200": {
-            "description": "Movie found",
+            "description": "A list of recommended movies.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "_id": { "type": "string" },
-                "title": { "type": "string" },
-                "description": { "type": "string" },
-                "url": { "type": "string" },
-                "thumbnail": { "type": "string" },
-                "createdAt": { "type": "string", "format": "date-time" }
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "url": { "type": "string" }
+                }
               }
             }
-          },
-          "404": {
-            "description": "Movie not found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
-      },
-      "put": {
+      }
+    },
+    "/movies/my-list": {
+      "post": {
         "tags": ["Movies"],
-        "summary": "Update a movie",
-        "description": "Updates a movie's details.",
+        "summary": "Add movies to my list",
+        "description": "Allows users to add a movie to their personal list.",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
+            "name": "Authorization",
+            "in": "header",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>'."
           },
           {
             "name": "body",
@@ -285,44 +389,30 @@
             "schema": {
               "type": "object",
               "properties": {
-                "title": { "type": "string" },
-                "description": { "type": "string" },
-                "url": { "type": "string" }
+                "movieId": { "type": "string" }
               },
-              "required": ["title", "description", "url"]
+              "required": ["movieId"]
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Movie updated successfully"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Movies"],
-        "summary": "Delete a movie",
-        "description": "Deletes a movie by its ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Movie deleted successfully"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "201": { "description": "Movie added to your list successfully." },
+          "400": { "description": "Invalid movie ID." }
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Enter your JWT token in the format 'Bearer <token>'."
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
 }
