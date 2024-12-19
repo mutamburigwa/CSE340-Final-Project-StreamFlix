@@ -1,53 +1,58 @@
 const mongodb = require("../data/database");
+const User = require("../models/users"); // Adjust the path based on your folder structure
 const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-require('dotenv').config();
+require("dotenv").config();
 const SALT_ROUNDS = process.env.SALT_ROUNDS || 10; // Default to 10 if not defined
 
 const login = async (req, res) => {
   //#swagger.tags=['Authentication']
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
+    try {
+      const { username, password } = req.body;
+  
+      // Validate input
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required." });
+      }
+  
+      // Use the User model to find the user by username
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(401).json({ message: "Invalid username or password." });
+      }
+  
+      // Compare the provided password with the stored hashed password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid username or password." });
+      }
+  
+      // Generate a JWT token
+      const token = jwt.sign(
+        { id: user._id, username: user.username, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" } // Token will expire in 1 hour
+      );
+  
+      // Return the token and expiration time
+      res.status(200).json({ accessToken: token, expiresIn: 3600 });
+    } catch (error) {
+      console.error("Error during login:", error);
+      res.status(500).json({ message: "Error during login", error: error.message });
     }
-
-    const db = mongodb.getDatabase().db();
-    const user = await db.collection("users").findOne({ username });
-
-    if (!user) {
-      return res.status(401).json({ message: "Invalid username or password" });
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid username or password" });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.status(200).json({ accessToken: token, expiresIn: "1h", username: user.username, role: user.role });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error during login", error: error.message });
-  }
-};
-
+  };
+  
+  module.exports = { login };
+  
 
 const getAll = async (req, res) => {
   //#swagger.tags=['Users']
   if (req.user.role !== "admin") {
-    return res.status(403).json({ message: "Access denied. Admin privileges required." });
+    return res
+      .status(403)
+      .json({ message: "Access denied. Admin privileges required." });
   }
 
   try {
@@ -61,7 +66,6 @@ const getAll = async (req, res) => {
       .json({ message: "Error retrieving users", error: error.message });
   }
 };
-
 
 const getSingle = async (req, res) => {
   //#swagger.tags=['Users']
@@ -100,7 +104,10 @@ const createUser = async (req, res) => {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, parseInt(SALT_ROUNDS, 10));
+    const hashedPassword = await bcrypt.hash(
+      password,
+      parseInt(SALT_ROUNDS, 10)
+    );
 
     const newUser = {
       firstName,
@@ -114,7 +121,12 @@ const createUser = async (req, res) => {
     const response = await db.collection("users").insertOne(newUser);
 
     if (response.acknowledged) {
-      res.status(201).json({ message: "User registered successfully", user: { username, role: newUser.role } });
+      res
+        .status(201)
+        .json({
+          message: "User registered successfully",
+          user: { username, role: newUser.role },
+        });
     } else {
       res
         .status(500)
@@ -127,7 +139,6 @@ const createUser = async (req, res) => {
   }
 };
 
-  
 const updateUser = async (req, res) => {
   //#swagger.tags=['Users']
   try {
@@ -153,7 +164,9 @@ const updateUser = async (req, res) => {
       username,
     };
 
-    const response = await db.collection("users").updateOne({ _id: userId }, { $set: updatedUser });
+    const response = await db
+      .collection("users")
+      .updateOne({ _id: userId }, { $set: updatedUser });
 
     if (response.modifiedCount > 0) {
       res.status(204).send();
@@ -191,7 +204,6 @@ const deleteUser = async (req, res) => {
       .json({ message: "Error deleting user", error: error.message });
   }
 };
-
 
 module.exports = {
   login,

@@ -7,11 +7,16 @@
   },
   "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http", "https"],
+  "schemes": [
+    "http",
+    "https"
+  ],
   "paths": {
     "/users/login": {
       "post": {
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Login a user or admin",
         "description": "Authenticates a user or admin and returns a JWT token.",
         "parameters": [
@@ -22,10 +27,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "username": { "type": "string" },
-                "password": { "type": "string" }
+                "username": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
               },
-              "required": ["username", "password"]
+              "required": [
+                "username",
+                "password"
+              ]
             }
           }
         ],
@@ -35,20 +47,32 @@
             "schema": {
               "type": "object",
               "properties": {
-                "accessToken": { "type": "string" },
-                "expiresIn": { "type": "integer" }
+                "accessToken": {
+                  "type": "string"
+                },
+                "expiresIn": {
+                  "type": "integer"
+                }
               }
             }
           },
-          "400": { "description": "Bad Request - Invalid input." },
-          "401": { "description": "Unauthorized - Invalid credentials." },
-          "500": { "description": "Internal Server Error." }
+          "400": {
+            "description": "Bad Request - Invalid input."
+          },
+          "401": {
+            "description": "Unauthorized - Invalid credentials."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
         }
       }
     },
     "/users": {
       "post": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Create a new user",
         "description": "Allows anyone to create a new user with the provided details.",
         "parameters": [
@@ -59,25 +83,51 @@
             "schema": {
               "type": "object",
               "properties": {
-                "firstName": { "type": "string" },
-                "lastName": { "type": "string" },
-                "email": { "type": "string" },
-                "username": { "type": "string" },
-                "password": { "type": "string" }
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
               },
-              "required": ["firstName", "lastName", "email", "username", "password"]
+              "required": [
+                "firstName",
+                "lastName",
+                "email",
+                "username",
+                "password"
+              ]
             }
           }
         ],
         "responses": {
-          "201": { "description": "User created successfully" },
-          "400": { "description": "Bad Request - Missing or invalid fields" },
-          "409": { "description": "Conflict - Username already exists" },
-          "500": { "description": "Internal Server Error" }
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Bad Request - Missing or invalid fields"
+          },
+          "409": {
+            "description": "Conflict - Username already exists"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       },
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get all users",
         "description": "Allows admins to retrieve a list of all users.",
         "parameters": [
@@ -97,24 +147,42 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "_id": { "type": "string" },
-                  "firstName": { "type": "string" },
-                  "lastName": { "type": "string" },
-                  "email": { "type": "string" },
-                  "username": { "type": "string" },
-                  "role": { "type": "string" }
+                  "_id": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  }
                 }
               }
             }
           },
-          "401": { "description": "Unauthorized - Admin privileges required." },
-          "500": { "description": "Internal Server Error" }
+          "401": {
+            "description": "Unauthorized - Admin privileges required."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     },
     "/users/{id}": {
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update user information",
         "description": "Allows admins to update user details.",
         "parameters": [
@@ -139,23 +207,44 @@
             "schema": {
               "type": "object",
               "properties": {
-                "firstName": { "type": "string" },
-                "lastName": { "type": "string" },
-                "email": { "type": "string" },
-                "username": { "type": "string" }
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
               },
-              "required": ["firstName", "lastName", "email", "username"]
+              "required": [
+                "firstName",
+                "lastName",
+                "email",
+                "username"
+              ]
             }
           }
         ],
         "responses": {
-          "204": { "description": "User updated successfully." },
-          "401": { "description": "Unauthorized - Admin privileges required." },
-          "404": { "description": "User not found." }
+          "204": {
+            "description": "User updated successfully."
+          },
+          "401": {
+            "description": "Unauthorized - Admin privileges required."
+          },
+          "404": {
+            "description": "User not found."
+          }
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete a user",
         "description": "Allows admins to delete a user by ID.",
         "parameters": [
@@ -175,15 +264,23 @@
           }
         ],
         "responses": {
-          "204": { "description": "User deleted successfully." },
-          "401": { "description": "Unauthorized - Admin privileges required." },
-          "404": { "description": "User not found." }
+          "204": {
+            "description": "User deleted successfully."
+          },
+          "401": {
+            "description": "Unauthorized - Admin privileges required."
+          },
+          "404": {
+            "description": "User not found."
+          }
         }
       }
     },
     "/movies": {
       "post": {
-        "tags": ["Movies"],
+        "tags": [
+          "Movies"
+        ],
         "summary": "Create a new movie",
         "description": "Allows admins to create a new movie.",
         "parameters": [
@@ -201,16 +298,44 @@
             "schema": {
               "type": "object",
               "properties": {
-                "title": { "type": "string" },
-                "description": { "type": "string" },
-                "url": { "type": "string" },
-                "releaseDate": { "type": "string", "format": "date" },
-                "genre": { "type": "array", "items": { "type": "string" } },
-                "director": { "type": "string" },
-                "cast": { "type": "array", "items": { "type": "string" } },
-                "language": { "type": "string" },
-                "runtime": { "type": "integer", "description": "Runtime in minutes" },
-                "thumbnail": { "type": "string" }
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "releaseDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "genre": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "director": {
+                  "type": "string"
+                },
+                "cast": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "language": {
+                  "type": "string"
+                },
+                "runtime": {
+                  "type": "integer",
+                  "description": "Runtime in minutes"
+                },
+                "thumbnail": {
+                  "type": "string"
+                }
               },
               "required": [
                 "title",
@@ -228,13 +353,21 @@
           }
         ],
         "responses": {
-          "201": { "description": "Movie created successfully." },
-          "401": { "description": "Unauthorized - Admin privileges required." },
-          "500": { "description": "Internal Server Error." }
+          "201": {
+            "description": "Movie created successfully."
+          },
+          "401": {
+            "description": "Unauthorized - Admin privileges required."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
         }
       },
       "get": {
-        "tags": ["Movies"],
+        "tags": [
+          "Movies"
+        ],
         "summary": "Get all movies",
         "description": "Accessible to all authenticated users.",
         "parameters": [
@@ -254,23 +387,40 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "_id": { "type": "string" },
-                  "title": { "type": "string" },
-                  "description": { "type": "string" },
-                  "url": { "type": "string" },
-                  "thumbnail": { "type": "string" },
-                  "createdAt": { "type": "string", "format": "date-time" }
+                  "_id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "thumbnail": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
                 }
               }
             }
           },
-          "401": { "description": "Unauthorized - Token missing or invalid." }
+          "401": {
+            "description": "Unauthorized - Token missing or invalid."
+          }
         }
       }
     },
     "/movies/{id}": {
       "put": {
-        "tags": ["Movies"],
+        "tags": [
+          "Movies"
+        ],
         "summary": "Update a movie",
         "description": "Allows admins to update a movie's details.",
         "parameters": [
@@ -295,23 +445,44 @@
             "schema": {
               "type": "object",
               "properties": {
-                "title": { "type": "string" },
-                "description": { "type": "string" },
-                "url": { "type": "string" },
-                "thumbnail": { "type": "string" }
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "thumbnail": {
+                  "type": "string"
+                }
               },
-              "required": ["title", "description", "url", "thumbnail"]
+              "required": [
+                "title",
+                "description",
+                "url",
+                "thumbnail"
+              ]
             }
           }
         ],
         "responses": {
-          "204": { "description": "Movie updated successfully." },
-          "401": { "description": "Unauthorized - Admin privileges required." },
-          "404": { "description": "Movie not found." }
+          "204": {
+            "description": "Movie updated successfully."
+          },
+          "401": {
+            "description": "Unauthorized - Admin privileges required."
+          },
+          "404": {
+            "description": "Movie not found."
+          }
         }
       },
       "delete": {
-        "tags": ["Movies"],
+        "tags": [
+          "Movies"
+        ],
         "summary": "Delete a movie",
         "description": "Allows admins to delete a movie by ID.",
         "parameters": [
@@ -331,15 +502,23 @@
           }
         ],
         "responses": {
-          "204": { "description": "Movie deleted successfully." },
-          "401": { "description": "Unauthorized - Admin privileges required." },
-          "404": { "description": "Movie not found." }
+          "204": {
+            "description": "Movie deleted successfully."
+          },
+          "401": {
+            "description": "Unauthorized - Admin privileges required."
+          },
+          "404": {
+            "description": "Movie not found."
+          }
         }
       }
     },
     "/movies/recommendations": {
       "get": {
-        "tags": ["Movies"],
+        "tags": [
+          "Movies"
+        ],
         "summary": "Get recommended movies",
         "description": "Provides movie recommendations for the user based on their watch history.",
         "parameters": [
@@ -359,9 +538,15 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "title": { "type": "string" },
-                  "description": { "type": "string" },
-                  "url": { "type": "string" }
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -370,8 +555,57 @@
       }
     },
     "/movies/my-list": {
+      "get": {
+        "tags": [
+          "Movies"
+        ],
+        "summary": "Get my list of saved movies",
+        "description": "Retrieves the list of movies saved by the user.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "JWT token in the format 'Bearer <token>'."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of movies in the user's personal list.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "thumbnail": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Token missing or invalid."
+          }
+        }
+      },
       "post": {
-        "tags": ["Movies"],
+        "tags": [
+          "Movies"
+        ],
         "summary": "Add movies to my list",
         "description": "Allows users to add a movie to their personal list.",
         "parameters": [
@@ -389,15 +623,23 @@
             "schema": {
               "type": "object",
               "properties": {
-                "movieId": { "type": "string" }
+                "movieId": {
+                  "type": "string"
+                }
               },
-              "required": ["movieId"]
+              "required": [
+                "movieId"
+              ]
             }
           }
         ],
         "responses": {
-          "201": { "description": "Movie added to your list successfully." },
-          "400": { "description": "Invalid movie ID." }
+          "201": {
+            "description": "Movie added to your list successfully."
+          },
+          "400": {
+            "description": "Invalid movie ID."
+          }
         }
       }
     }

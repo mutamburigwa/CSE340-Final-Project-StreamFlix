@@ -4,11 +4,18 @@ const movieController = require("../controllers/movies");
 
 const router = express.Router();
 
+// Movie Recommendations
+router.get("/recommendations", authenticateToken, movieController.getRecommendations);
+
+// My List
+router.post("/my-list", authenticateToken, movieController.addToMyList);
+router.get("/my-list", authenticateToken, movieController.getMyList);
+
 // Routes for Movies
-router.get("/", authenticateToken, movieController.getAllMovies); // All authenticated users can view movies
-router.get("/:id", authenticateToken, movieController.getMovieById); // All authenticated users can view a single movie
-router.post("/", authenticateToken, authorizeRole("admin"), movieController.createMovie); // Only admins can create movies
-router.put("/:id", authenticateToken, authorizeRole("admin"), movieController.updateMovieById); // Only admins can update movies
-router.delete("/:id", authenticateToken, authorizeRole("admin"), movieController.deleteMovieById); // Only admins can delete movies
+router.get("/", authenticateToken, movieController.getAllMovies); // Get all movies
+router.get("/:id", authenticateToken, movieController.getMovieById); // Get a movie by ID
+router.post("/", authenticateToken, authorizeRole("admin"), movieController.createMovie); // Admin: Create a movie
+router.put("/:id", authenticateToken, authorizeRole("admin"), movieController.updateMovieById); // Admin: Update a movie
+router.delete("/:id", authenticateToken, authorizeRole("admin"), movieController.deleteMovieById); // Admin: Delete a movie
 
 module.exports = router;
